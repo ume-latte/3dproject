@@ -6,8 +6,8 @@
   <title>3D Project</title>
   <!-- 載入 three.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <!-- 載入 GLTFLoader (確保版本與 three.js 相容) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/examples/js/loaders/GLTFLoader.js"></script>
+  <!-- 載入 glbLoader (確保版本與 three.js 相容) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/examples/js/loaders/glbLoader.js"></script>
   <style>
     body { margin: 0; overflow: hidden; }
     canvas { display: block; }
@@ -40,8 +40,8 @@
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
-    // 建立 GLTFLoader 載入模型
-    const loader = new THREE.GLTFLoader();
+    // 建立 glbLoader 載入模型
+    const loader = new THREE.glbLoader();
     let currentModel = null;
 
     function loadModel(modelFile) {
@@ -50,8 +50,8 @@
         scene.remove(currentModel);
       }
       // 從 models 資料夾載入模型
-      loader.load("models/" + modelFile, function(gltf) {
-        currentModel = gltf.scene;
+      loader.load("models/" + modelFile, function(glb) {
+        currentModel = glb.scene;
         scene.add(currentModel);
       }, undefined, function(error) {
         console.error("載入模型時發生錯誤：", error);
@@ -59,7 +59,7 @@
     }
 
     // 預設載入第一個模型
-    loadModel("model1.gltf");
+    loadModel("model1.glb");
 
     // 監聽下拉選單變更事件
     const modelSelect = document.getElementById('modelSelect');
