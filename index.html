@@ -6,12 +6,12 @@
   <title>3D Project</title>
   <!-- 載入 three.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <!-- 載入 GLTFLoader（可載入 .glb 模型） -->
+  <!-- 載入 GLTFLoader（用於載入 .glb 模型） -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/examples/js/loaders/GLTFLoader.js"></script>
   <style>
     body { margin: 0; overflow: hidden; }
     canvas { display: block; }
-    /* 下拉選單置中 */
+    /* 將下拉選單置中 */
     #modelSelect {
       position: absolute;
       top: 50%;
@@ -23,7 +23,7 @@
   </style>
 </head>
 <body>
-  <!-- 下拉選單，value 為模型檔名 -->
+  <!-- 下拉選單，選項的 value 為模型檔名 -->
   <select id="modelSelect">
     <option value="alice.glb">愛麗ㄙ</option>
     <option value="Astronaut.glb">愛ㄙ安特</option>
@@ -46,15 +46,16 @@
     let currentModel = null;
 
     function loadModel(modelFile) {
+      // 移除現有模型（若有）
       if (currentModel) {
         scene.remove(currentModel);
       }
-      // 請確認這裡的路徑是否正確（例如資料夾名稱、大小寫等）
-      loader.load("3DViewer/model" + modelFile, function(glb) {
+      // 從 "3DViewer/models/" 資料夾載入指定的模型檔案
+      loader.load("3DViewer/models/" + modelFile, function(glb) {
         currentModel = glb.scene;
         // 調整位置與比例，確保模型在攝影機視野內
         currentModel.position.set(0, 0, 0);
-        currentModel.scale.set(1, 1, 1); // 根據需要進行調整
+        currentModel.scale.set(1, 1, 1); // 如有需要請依模型大小調整
         scene.add(currentModel);
       }, undefined, function(error) {
         console.error("載入模型時發生錯誤：", error);
@@ -64,7 +65,7 @@
     // 預設載入 2025_3_14.glb 模型
     loadModel("2025_3_14.glb");
 
-    // 監聽下拉選單，點選後載入對應模型
+    // 監聽下拉選單，當選擇變更時載入對應模型
     const modelSelect = document.getElementById('modelSelect');
     modelSelect.addEventListener('change', function(event) {
       loadModel(event.target.value);
@@ -80,7 +81,7 @@
     }
     animate();
 
-    // 畫面尺寸變更時更新攝影機與渲染器
+    // 畫面尺寸變更時更新攝影機與渲染器設定
     window.addEventListener('resize', () => {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
@@ -89,3 +90,4 @@
   </script>
 </body>
 </html>
+ 
