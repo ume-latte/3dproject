@@ -6,23 +6,24 @@
   <title>3D Project</title>
   <!-- 載入 three.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <!-- 載入 GLTFLoader（用於載入 .glb 模型，GLTFLoader 同時也支援 glb 格式） -->
+  <!-- 載入 GLTFLoader（可載入 .glb 模型） -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/examples/js/loaders/GLTFLoader.js"></script>
   <style>
     body { margin: 0; overflow: hidden; }
     canvas { display: block; }
-    /* 下拉選單固定在畫面上 */
+    /* 將下拉選單置中 */
     #modelSelect {
       position: absolute;
-      top: 10px;
-      left: 10px;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
       z-index: 10;
       font-size: 16px;
     }
   </style>
 </head>
 <body>
-  <!-- 下拉選單，選項的 value 為模型檔名 -->
+  <!-- 下拉選單，value 為模型檔名 -->
   <select id="modelSelect">
     <option value="alice.glb">愛麗ㄙ</option>
     <option value="Astronaut.glb">愛ㄙ安特</option>
@@ -40,17 +41,17 @@
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
-    // 使用 GLTFLoader 載入 .glb 模型（GLTFLoader 可同時讀取 glb 格式）
+    // 使用 GLTFLoader 載入 .glb 模型
     const loader = new THREE.GLTFLoader();
     let currentModel = null;
 
     function loadModel(modelFile) {
-      // 移除現有模型（若有）
+      // 若已有模型則先移除ㄋ
       if (currentModel) {
         scene.remove(currentModel);
       }
-      // 從 models 資料夾載入指定的模型檔案
-      loader.load("models/" + modelFile, function(glb) {
+      // 修改這裡的路徑，改為實際存放模型的資料夾（例如 "3DViewer/"）
+      loader.load("3DViewer/" + modelFile, function(glb) {
         currentModel = glb.scene;
         scene.add(currentModel);
       }, undefined, function(error) {
@@ -61,14 +62,13 @@
     // 預設載入 2025_3_14.glb 模型
     loadModel("2025_3_14.glb");
 
-    // 下拉選單事件：當選擇變更時載入對應的模型
+    // 監聽下拉選單，點選後載入對應模型
     const modelSelect = document.getElementById('modelSelect');
     modelSelect.addEventListener('change', function(event) {
-      const selectedModel = event.target.value;
-      loadModel(selectedModel);
+      loadModel(event.target.value);
     });
 
-    // 動畫循環：讓當前模型持續旋轉
+    // 動畫循環：讓模型持續旋轉
     function animate() {
       requestAnimationFrame(animate);
       if (currentModel) {
@@ -78,7 +78,7 @@
     }
     animate();
 
-    // 畫面尺寸變更時更新攝影機與渲染器設定
+    // 畫面尺寸變更時更新攝影機與渲染器
     window.addEventListener('resize', () => {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
