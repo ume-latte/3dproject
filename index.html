@@ -11,7 +11,7 @@
   <style>
     body { margin: 0; overflow: hidden; }
     canvas { display: block; }
-    /* 將下拉選單置中 */
+    /* 下拉選單置中 */
     #modelSelect {
       position: absolute;
       top: 50%;
@@ -46,13 +46,15 @@
     let currentModel = null;
 
     function loadModel(modelFile) {
-      // 若已有模型則先移除ㄋ
       if (currentModel) {
         scene.remove(currentModel);
       }
-      // 修改這裡的路徑，改為實際存放模型的資料夾（例如 "3DViewer/"）
+      // 請確認這裡的路徑是否正確（例如資料夾名稱、大小寫等）
       loader.load("3DViewer/" + modelFile, function(glb) {
         currentModel = glb.scene;
+        // 調整位置與比例，確保模型在攝影機視野內
+        currentModel.position.set(0, 0, 0);
+        currentModel.scale.set(1, 1, 1); // 根據需要進行調整
         scene.add(currentModel);
       }, undefined, function(error) {
         console.error("載入模型時發生錯誤：", error);
