@@ -54,7 +54,7 @@
       loader.load("3DViewer/models/" + modelFile, function(glb) {
         currentModel = glb.scene;
         // 調整模型位置與比例，確保在攝影機視野內
-        currentModel.position.set(0, 0, 0);
+        currentModel.position.set(2, -2, 0);
         currentModel.scale.set(1, 1, 1);
         scene.add(currentModel);
       }, undefined, function(error) {
@@ -63,7 +63,7 @@
     }
 
     // 預設載入 2025_3_14.glb 模型
-    loadModel("2025_3_14.glb");
+    loadModel("3DViewer/models/2025_3_14.glb");
 
     // 當選擇變更時，根據選項載入對應的模型
     const modelSelect = document.getElementById('modelSelect');
