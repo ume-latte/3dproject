@@ -6,12 +6,12 @@
   <title>3D Project</title>
   <!-- 載入 three.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <!-- 載入 GLTFLoader（用於讀取 .glb 模型） -->
+  <!-- 載入 GLTFLoader（用於載入 .glb 模型，GLTFLoader 同時也支援 glb 格式） -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/examples/js/loaders/GLTFLoader.js"></script>
   <style>
     body { margin: 0; overflow: hidden; }
     canvas { display: block; }
-    /* 將下拉選單固定在畫面上 */
+    /* 下拉選單固定在畫面上 */
     #modelSelect {
       position: absolute;
       top: 10px;
@@ -34,22 +34,22 @@
   <script>
     // 初始化場景、攝影機與渲染器
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     camera.position.z = 5;
     const renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
-    // 建立 GLTFLoader 載入 .glb 模型
+    // 使用 GLTFLoader 載入 .glb 模型（GLTFLoader 可同時讀取 glb 格式）
     const loader = new THREE.GLTFLoader();
     let currentModel = null;
 
     function loadModel(modelFile) {
-      // 若已有模型則從場景中移除
+      // 移除現有模型（若有）
       if (currentModel) {
         scene.remove(currentModel);
       }
-      // 從 models 資料夾載入指定模型
+      // 從 models 資料夾載入指定的模型檔案
       loader.load("models/" + modelFile, function(glb) {
         currentModel = glb.scene;
         scene.add(currentModel);
@@ -58,21 +58,20 @@
       });
     }
 
-    // 預設載入第一個模型
+    // 預設載入 2025_3_14.glb 模型
     loadModel("2025_3_14.glb");
 
-    // 監聽下拉選單的變更事件，點選後載入對應模型
+    // 下拉選單事件：當選擇變更時載入對應的模型
     const modelSelect = document.getElementById('modelSelect');
     modelSelect.addEventListener('change', function(event) {
       const selectedModel = event.target.value;
       loadModel(selectedModel);
     });
 
-    // 動畫更新
+    // 動畫循環：讓當前模型持續旋轉
     function animate() {
       requestAnimationFrame(animate);
       if (currentModel) {
-        // 可在此處加入旋轉或其他動畫效果
         currentModel.rotation.y += 0.01;
       }
       renderer.render(scene, camera);
@@ -81,7 +80,7 @@
 
     // 畫面尺寸變更時更新攝影機與渲染器設定
     window.addEventListener('resize', () => {
-      camera.aspect = window.innerWidth/window.innerHeight;
+      camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
     });
