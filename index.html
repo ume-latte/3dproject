@@ -1,50 +1,86 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Project</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <style>
-        body { margin: 0; overflow: hidden; }
-        canvas { display: block; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3D Project</title>
+  <!-- 載入 three.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <!-- 載入 GLTFLoader (確保版本與 three.js 相容) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/examples/js/loaders/GLTFLoader.js"></script>
+  <style>
+    body { margin: 0; overflow: hidden; }
+    canvas { display: block; }
+    /* 將選單固定在畫面上 */
+    #modelSelect {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 10;
+      font-size: 16px;
+    }
+  </style>
 </head>
 <body>
-    <script>
-        // 初始化場景
-        const scene = new THREE.Scene();
-        
-        // 創建攝影機
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.z = 5;
-        
-        // 渲染器
-        const renderer = new THREE.WebGLRenderer();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        document.body.appendChild(renderer.domElement);
-        
-        // 建立立方體
-        const geometry = new THREE.BoxGeometry();
-        const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-        const cube = new THREE.Mesh(geometry, material);
-        scene.add(cube);
-        
-        // 動畫函數
-        function animate() {
-            requestAnimationFrame(animate);
-            cube.rotation.x += 0.01;
-            cube.rotation.y += 0.01;
-            renderer.render(scene, camera);
-        }
-        animate();
-        
-        // 縮放視窗時更新渲染
-        window.addEventListener('resize', () => {
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-        });
-    </script>
+  <!-- 建立一個下拉選單 -->
+  <select id="modelSelect">
+    <option value="model1.gltf">模型 1</option>
+    <option value="model2.gltf">模型 2</option>
+  </select>
+
+  <script>
+    // 初始化場景、攝影機與渲染器
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+    camera.position.z = 5;
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    // 建立 GLTFLoader 載入模型
+    const loader = new THREE.GLTFLoader();
+    let currentModel = null;
+
+    function loadModel(modelFile) {
+      // 若已有模型則從場景移除
+      if (currentModel) {
+        scene.remove(currentModel);
+      }
+      // 從 models 資料夾載入模型
+      loader.load("models/" + modelFile, function(gltf) {
+        currentModel = gltf.scene;
+        scene.add(currentModel);
+      }, undefined, function(error) {
+        console.error("載入模型時發生錯誤：", error);
+      });
+    }
+
+    // 預設載入第一個模型
+    loadModel("model1.gltf");
+
+    // 監聽下拉選單變更事件
+    const modelSelect = document.getElementById('modelSelect');
+    modelSelect.addEventListener('change', function(event) {
+      const selectedModel = event.target.value;
+      loadModel(selectedModel);
+    });
+
+    // 動畫更新
+    function animate() {
+      requestAnimationFrame(animate);
+      if (currentModel) {
+        currentModel.rotation.y += 0.01;
+      }
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    // 畫面尺寸變更時更新攝影機與渲染器設定
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth/window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
 </body>
 </html>
