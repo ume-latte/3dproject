@@ -6,12 +6,12 @@
   <title>3D Project</title>
   <!-- 載入 three.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <!-- 載入 glbLoader (確保版本與 three.js 相容) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/examples/js/loaders/glbLoader.js"></script>
+  <!-- 載入 GLTFLoader（用於讀取 .glb 模型） -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/examples/js/loaders/GLTFLoader.js"></script>
   <style>
     body { margin: 0; overflow: hidden; }
     canvas { display: block; }
-    /* 將選單固定在畫面上 */
+    /* 將下拉選單固定在畫面上 */
     #modelSelect {
       position: absolute;
       top: 10px;
@@ -22,7 +22,7 @@
   </style>
 </head>
 <body>
-  <!-- 建立一個下拉選單 -->
+  <!-- 下拉選單，選項的 value 為模型檔名 -->
   <select id="modelSelect">
     <option value="alice.glb">愛麗ㄙ</option>
     <option value="Astronaut.glb">愛ㄙ安特</option>
@@ -40,16 +40,16 @@
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
-    // 建立 glbLoader 載入模型
-    const loader = new THREE.glbLoader();
+    // 建立 GLTFLoader 載入 .glb 模型
+    const loader = new THREE.GLTFLoader();
     let currentModel = null;
 
     function loadModel(modelFile) {
-      // 若已有模型則從場景移除
+      // 若已有模型則從場景中移除
       if (currentModel) {
         scene.remove(currentModel);
       }
-      // 從 models 資料夾載入模型
+      // 從 models 資料夾載入指定模型
       loader.load("models/" + modelFile, function(glb) {
         currentModel = glb.scene;
         scene.add(currentModel);
@@ -59,9 +59,9 @@
     }
 
     // 預設載入第一個模型
-    loadModel("model1.glb");
+    loadModel("2025_3_14.glb");
 
-    // 監聽下拉選單變更事件
+    // 監聽下拉選單的變更事件，點選後載入對應模型
     const modelSelect = document.getElementById('modelSelect');
     modelSelect.addEventListener('change', function(event) {
       const selectedModel = event.target.value;
@@ -72,6 +72,7 @@
     function animate() {
       requestAnimationFrame(animate);
       if (currentModel) {
+        // 可在此處加入旋轉或其他動畫效果
         currentModel.rotation.y += 0.01;
       }
       renderer.render(scene, camera);
