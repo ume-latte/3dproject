@@ -50,7 +50,7 @@
         scene.remove(currentModel);
       }
       // 請確認這裡的路徑是否正確（例如資料夾名稱、大小寫等）
-      loader.load("3DViewer/" + modelFile, function(glb) {
+      loader.load("3DViewer/model" + modelFile, function(glb) {
         currentModel = glb.scene;
         // 調整位置與比例，確保模型在攝影機視野內
         currentModel.position.set(0, 0, 0);
