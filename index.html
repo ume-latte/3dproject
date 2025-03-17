@@ -51,7 +51,7 @@
         scene.remove(currentModel);
       }
       // 使用相對路徑從 "3DViewer/models" 資料夾載入指定模型檔案
-      loader.load("3DViewer/models/" + modelFile, function(glb) {
+      loader.load(modelFile, function(glb) {
         currentModel = glb.scene;
         // 調整模型位置與比例，確保在攝影機視野內
         currentModel.position.set(2, -2, 0);
@@ -63,7 +63,7 @@
     }
 
     // 預設載入 2025_3_14.glb 模型
-    loadModel("3DViewer/models/2025_3_14.glb");
+    loadModel("2025_3_14.glb");
 
     // 當選擇變更時，根據選項載入對應的模型
     const modelSelect = document.getElementById('modelSelect');
