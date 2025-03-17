@@ -1,92 +1,118 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-tw">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>3D Project</title>
-  <!-- 載入 three.js -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <!-- 載入 GLTFLoader（用於載入 .glb 模型） -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/examples/js/loaders/GLTFLoader.js"></script>
+  <title>3D 模型展示</title>
   <style>
-    body { margin: 0; overflow: hidden; }
-    canvas { display: block; }
-    /* 將下拉選單置中 */
-    #modelSelect {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 10;
-      font-size: 16px;
+    body { margin: 0; font-family: Arial, sans-serif; }
+    #menu { padding: 10px; background-color: #f0f0f0; text-align: center; }
+    .model-btn {
+      margin: 5px;
+      padding: 10px 15px;
+      border: none;
+      background-color: #008cba;
+      color: white;
+      cursor: pointer;
+      border-radius: 4px;
     }
+    .model-btn:hover {
+      background-color: #005f5f;
+    }
+    #model-container { width: 100%; height: calc(100vh - 60px); }
   </style>
 </head>
 <body>
-  <!-- 下拉選單，value 為模型檔名 -->
-  <select id="modelSelect">
-    <option value="alice.glb">愛麗ㄙ</option>
-    <option value="Astronaut.glb">愛ㄙ安特</option>
-    <option value="buddha.glb">半袋哈</option>
-    <option value="stacy_lightweight.glb">ㄕ黛西</option>
-    <option value="2025_3_14.glb">誰是最棒的小蛋糕</option>
-  </select>
+  <div id="menu">
+    <button class="model-btn" data-model="models/alice.glb">愛麗ㄙ</button>
+    <button class="model-btn" data-model="models/Astronaut.glb">愛ㄙ安特</button>
+    <button class="model-btn" data-model="models/buddha.glb">半袋哈</button>
+    <button class="model-btn" data-model="models/stacy_lightweight.glb">ㄕ黛西</button>
+    <button class="model-btn" data-model="models/2025_3_14.glb">誰是最棒的小蛋糕</button>
+  </div>
+  <div id="model-container"></div>
+
+  <!-- 載入 Three.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <!-- 載入 GLTFLoader (依照需要載入對應的 loader) -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 
   <script>
-    // 初始化場景、攝影機與渲染器
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.z = 5;
-    const renderer = new THREE.WebGLRenderer();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    document.body.appendChild(renderer.domElement);
+    let scene, camera, renderer, currentModel;
 
-    // 使用 GLTFLoader 載入 .glb 模型
-    const loader = new THREE.GLTFLoader();
-    let currentModel = null;
+    function init() {
+      // 建立場景
+      scene = new THREE.Scene();
 
-    function loadModel(modelFile) {
-      // 移除現有模型（若有）
-      if (currentModel) {
-        scene.remove(currentModel);
-      }
-      // 使用相對路徑從 "3DViewer/models" 資料夾載入指定模型檔案
-      loader.load(modelFile, function(glb) {
-        currentModel = glb.scene;
-        // 調整模型位置與比例，確保在攝影機視野內
-        currentModel.position.set(2, -2, 0);
-        currentModel.scale.set(1, 1, 1);
-        scene.add(currentModel);
-      }, undefined, function(error) {
-        console.error("載入模型時發生錯誤：", error);
-      });
+      // 建立相機
+      camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+      camera.position.z = 5;
+
+      // 建立渲染器
+      renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      document.getElementById('model-container').appendChild(renderer.domElement);
+
+      // 加入簡單的光源
+      const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444);
+      hemiLight.position.set(0, 20, 0);
+      scene.add(hemiLight);
+
+      // 開始動畫循環
+      animate();
     }
 
-    // 預設載入 2025_3_14.glb 模型
-    loadModel("2025_3_14.glb");
-
-    // 當選擇變更時，根據選項載入對應的模型
-    const modelSelect = document.getElementById('modelSelect');
-    modelSelect.addEventListener('change', function(event) {
-      loadModel(event.target.value);
-    });
-
-    // 動畫循環：讓模型持續旋轉
     function animate() {
       requestAnimationFrame(animate);
       if (currentModel) {
+        // 可依需求調整旋轉速度或方向
         currentModel.rotation.y += 0.01;
       }
       renderer.render(scene, camera);
     }
-    animate();
 
-    // 畫面尺寸變更時更新攝影機與渲染器
+    function loadModel(modelPath) {
+      // 移除現有模型（如果有的話）
+      if (currentModel) {
+        scene.remove(currentModel);
+        currentModel.traverse(child => {
+          if (child.geometry) child.geometry.dispose();
+          if (child.material) {
+            if (Array.isArray(child.material)) {
+              child.material.forEach(material => material.dispose());
+            } else {
+              child.material.dispose();
+            }
+          }
+        });
+        currentModel = null;
+      }
+
+      const loader = new THREE.GLTFLoader();
+      loader.load(modelPath, gltf => {
+        currentModel = gltf.scene;
+        scene.add(currentModel);
+      }, undefined, error => {
+        console.error('載入模型失敗：', error);
+      });
+    }
+
+    // 當畫面尺寸改變時調整相機與渲染器尺寸
     window.addEventListener('resize', () => {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
     });
+
+    // 為所有按鈕增加點擊事件
+    document.querySelectorAll('.model-btn').forEach(button => {
+      button.addEventListener('click', () => {
+        const modelPath = button.getAttribute('data-model');
+        loadModel(modelPath);
+      });
+    });
+
+    // 初始化
+    init();
   </script>
 </body>
 </html>
